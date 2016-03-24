@@ -1,12 +1,5 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: yes
----
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Reproducible Research: Peer Assessment 1
+
 ## Metadata and dependencies
 Author: ME
 Data forked from: https://github.com/rdpeng/RepData_PeerAssessment1
@@ -29,29 +22,53 @@ pa2 is data for the histogram (aggregated per date).
 pa3 is the data for the first time series plot (aggregated per interval).
 The last line generates the histogram.
 
-```{r echo = TRUE}
+
+```r
 pa1 <- read.csv("activity.csv")
 pa2<-aggregate(pa1$steps,by=list(pa1$date),FUN=sum)
 pa3<-aggregate(pa1$steps, by=list(pa1$interval), FUN=mean, na.rm=TRUE)
 hist(pa2$x, main="Histogram of steps each day", xlab="No. of steps", col = "red")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)
+
 ## What is mean total number of steps taken per day?
 The mean and median is calculated per day.
 
-```{r echo = TRUE}
-mean(pa2$x, na.rm=TRUE)
-median(pa2$x, na.rm=TRUE)
 
+```r
+mean(pa2$x, na.rm=TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median(pa2$x, na.rm=TRUE)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
 A timeseries plot showing the average activity over the day.
 Subsequently the 5 min interval with the max activity is found.
-```{r echo = TRUE}
+
+```r
 plot(pa3$Group.1,pa3$x, type="l", main="Daily activity pattern", xlab="Time", ylab="Steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
+
+```r
 pa3$Group.1[pa3$x==max(pa3$x)]
+```
+
+```
+## [1] 835
 ```
 
 
@@ -65,16 +82,39 @@ OBS unfortunately this ddply will not work for me in knitr.
 pa1.i<-ddply(pa1, "interval", mutate, steps = impute(steps, mean)). I get an ddply error when I run the knit HTML.
 
 A new mean and median is calculated (aggregated per date). 
-```{r echo = TRUE}
-sum(is.na(pa1$steps))
 
+```r
+sum(is.na(pa1$steps))
+```
+
+```
+## [1] 2304
+```
+
+```r
 pa1.i<-pa1
 pa1.i$steps[is.na(pa1.i$steps)] <- pa3$x[match(pa1.i$interval,pa3$Group.1)][is.na(pa1.i$steps)]
 
 pa2.i<-aggregate(pa1.i$steps,by=list(pa1.i$date),FUN=sum)
 hist(pa2.i$x, main="Histogram of steps each day", xlab="No. of steps", col = "red")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+
+```r
 mean(pa2.i$x)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(pa2.i$x)
+```
+
+```
+## [1] 10766.19
 ```
 
 The mean is the same, as before data was imputed (as the mean is used for the imputed data)
@@ -89,7 +129,8 @@ OBS I cannot make the qplot with facets work in the knitr HTML.
 
 This is why the data is subsetted and plotted on two different plots
 
-```{r echo = TRUE}
+
+```r
 pa1.i$date<-strptime(pa1.i$date,"%Y-%m-%d")
 pa1.i2<-pa1.i
 pa1.i2$day<-ifelse(weekdays(pa1.i2$date, abbreviate = TRUE) %in% c("ma","ti","on","to","fr"),"Weekday","Weekend")
@@ -102,5 +143,7 @@ par(mfrow=c(2,1),mar=c(3,4,2,2))
 plot(pa5$Group.1,pa5$x, type="l", main="Daily activity pattern Weekday", xlab="Time", ylab="Number of steps")
 plot(pa6$Group.1,pa6$x, type="l", main="Daily activity pattern Weekend", xlab="Time", ylab="Number of steps")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
 
 As most people our test person gets up later in the weekend.
